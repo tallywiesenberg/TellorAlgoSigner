@@ -1,6 +1,7 @@
 '''
 Asset class
 '''
+from ast import Dict
 import json
 import time
 import traceback

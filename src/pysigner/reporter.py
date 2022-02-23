@@ -2,11 +2,17 @@
 Reporter class
 '''
 
+from pysigner.asset import Asset
+
+
 class Reporter:
     def __init__(self, account, tg_bot):
         self.account = account
 
     def stake():
+        pass
+
+    def report():
         pass
 
     def build_tx(
