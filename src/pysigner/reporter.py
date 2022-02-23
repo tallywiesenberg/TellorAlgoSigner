@@ -9,6 +9,28 @@ class Reporter:
     def stake():
         pass
 
+    def build_tx(
+        self,
+        an_asset: Asset,
+        new_nonce: int,
+        new_gas_price: str,
+        extra_gas_price: float,
+    ) -> Dict:
+        new_gas_price = str(float(new_gas_price) + extra_gas_price)
+
+        transaction = self.mesosphere.functions.submitValue(
+            an_asset.request_id, an_asset.price
+        ).buildTransaction(
+            {
+                "nonce": new_nonce,
+                "gas": 4000000,
+                "gasPrice": self.w3.toWei(new_gas_price, "gwei"),
+                "chainId": self.chain_id,
+            }
+        )
+
+        return transaction
+
     def submit_value(self, asset):
         alert_sent = False
         try:
