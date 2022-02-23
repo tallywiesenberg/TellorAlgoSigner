@@ -43,7 +43,7 @@ class Asset:
             )
 
         for api in self.api_list:
-            price = self.fetch_api(api)
+            price = self.get_price(api)
             final_results.append(price * self.precision)
         didGet = True
 
@@ -51,30 +51,37 @@ class Asset:
         final_results.sort()
         return final_results[len(final_results) // 2]
 
-    def fetch_api(self, api):
+    def get_price(api_info: Dict) -> float:
         """
         Fetches price data from centralized public web API endpoints
         Returns: (str) ticker price from public exchange web APIs
         Input: (list of str) public api endpoint with any necessary json parsing keywords
         """
-        if not self.api_list:
-            raise ValueError("No APIs added for asset.")
         try:
-            # Parse list input
-            endpoint = api.url
-            parsers = api.request_parsers
-
             # Request JSON from public api endpoint
-            r = requests.get(endpoint)
-            json_ = r.json()
+            rsp = requests.get(api_info["url"]).json()
 
             # Parse through json with pre-written keywords
-            for keyword in parsers:
-                json_ = json_[keyword]
+            for keyword in api_info["keywords"]:
+                rsp = rsp[keyword]
 
             # return price (last remaining element of the json)
-            price = json_
-            return float(price)
-        except:
-            response = r.status_code
-            print("API ERROR", api.url, " ", response)
+            price = float(rsp)
+            return price
+
+        except Exception as e:
+            api_err_msg = f'API ERROR {api_info["url"]}\n'
+            tb = str(traceback.format_exc())
+            msg = api_err_msg + str(e) + "\n" + tb
+            signer_log.error(msg)
+
+    def __str__(self):
+        return f"""Asset: {self.name} request_id: {self.request_id} price: {self.price} timestamp: {self.timestamp}"""
+
+    def __repr__(self):
+        return f"""Asset: {self.name} request_id: {self.request_id} price: {self.price} timestamp: {self.timestamp}"""
+
+    def __eq__(self, other):
+        if self.name == other.name and self.request_id == other.request_id:
+            return True
+        return False
